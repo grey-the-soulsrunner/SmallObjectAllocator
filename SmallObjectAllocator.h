@@ -50,7 +50,8 @@ private:
 
 private:
     void compute_slot_parameters(){
-        // here we have a 
+        // here we use align_up function to enforce the cache-line alignment
+        // then respecting the alignment we compute slot size using the same function as the logic remains
         slot_align_ = align_up(alignof(T), 64ULL);
         slot_align_ = align_up(alignof(FreeNode), slot_align_);
         slot_size_ = std::max(sizeof(T), sizeof(FreeNode));

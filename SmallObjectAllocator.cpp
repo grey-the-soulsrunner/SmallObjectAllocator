@@ -1,8 +1,7 @@
 #include "SmallObjectAllocator.h"
 
-std::size_t align_up(std::size_t typeAligned, std::size_t numberAligned){
-    // this function compares the provided alignment with the required number
-    // if it is bigger than the required it returns the closest upper multiple
-    if( typeAligned <= numberAligned ) return numberAligned;
-    else return (numberAligned * std::ceil(static_cast<double>(typeAligned) / numberAligned));
+std::size_t align_up(std::size_t value, std::size_t alignment){
+    // this function returns the closest to the value number divisible by two
+    // bitwise operator is used to avoid floating point and be precise with big numbers
+    return (value + alignment - 1) & ~(alignment - 1);
 }
