@@ -2,6 +2,6 @@
 #include <string>
 
 int main (){
-    SmallObjectAllocator<int[30]> smallInts;
+    SmallObjectAllocator<int[2]> smallInts;
     return 0;
 }
