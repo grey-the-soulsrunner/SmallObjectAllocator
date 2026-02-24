@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project implements a single-threaded, cache-line–aligned small object allocator designed for objects with sizes in the 16–128 byte range.
+This project implements a single-threaded, cache-line–aligned small object allocator designed for objects with sizes in the 16–64 byte range.
 
 The allocator focuses on:
 * predictable memory layout

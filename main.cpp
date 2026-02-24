@@ -1,7 +1,8 @@
 #include "SmallObjectAllocator.h"
 #include <string>
+#include <vector>
 
 int main (){
-    SmallObjectAllocator<int[2]> smallInts;
+    SmallObjectAllocator<int> smallInts;
     return 0;
 }
