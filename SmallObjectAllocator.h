@@ -6,6 +6,7 @@
 #include <new>
 #include <memory>
 #include <vector>
+#include <array>
 #include <iostream>
 
 // aligns up the input number to values of power of two by disregarding lower bits
@@ -30,7 +31,7 @@ public:
     // free_list_ is constructued in the newly allocated memory
     SmallObjectAllocator(){
         blocks_[0].base = new std::byte[ChunkSize];
-        free_list_ = new(blocks_[0].base) FreeNode();
+        free_list_ = list_init(blocks_[0].base);
     }
 /* ~SmallObjectAllocator(){
         release_all_blocks;
@@ -38,7 +39,9 @@ public:
    
    
     // allocation and deallocation of T type objects
-    T* allocate();
+    T* allocate(){
+    
+    }
     void deallocate(T* ptr);
 
     // a free-list class
@@ -71,5 +74,19 @@ public:
         std::max(sizeof(T), sizeof(FreeNode)),
         SlotAlignment
         );
+    // function that initializes the free_list_
+    FreeNode* list_init(std::byte* beg){
+        FreeNode* curr = new (beg) FreeNode();
+        // loop that intiailizes each node
+        for( int i = 0; i < ChunkSize / kCacheLineAlignment; i++ ){
+            // first 63 are initialized with next pointing to the adjacent node, last one is left null
+            if(i < 63){
+                curr->next = new (reinterpret_cast<std::byte*>(curr) + 64) FreeNode();
+                curr = curr->next;
+            } else break;
+        }
+        // returning the same adress as provided in the argument casting it to FreeNode*
+        return reinterpret_cast<FreeNode*>(beg);
+    }
     void release_all_blocks();
 };
