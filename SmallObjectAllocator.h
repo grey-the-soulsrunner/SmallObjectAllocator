@@ -40,9 +40,29 @@ public:
    
     // allocation and deallocation of T type objects
     T* allocate(){
-    
+        FreeNode* next;
+        // if the free_list_ points to the last element create a new block and push the list forward
+        if(free_list_->next == nullptr){
+            blocks_.push_back(Block());
+            blocks_.back().base = new std::byte[ChunkSize];
+            next = list_init(blocks_.back().base);
+        } // or continue pushing the list forword in the existing chunks
+        else next = free_list_->next;
+        // deleting FreeNode object in the current free space and allocating the new one using placement new
+        free_list_->~FreeNode();
+        T* obj = new (free_list_) T();
+        free_list_ = next;
+        return obj;
     }
-    void deallocate(T* ptr);
+    void deallocate(T* ptr){
+        // deleting T type object of the passed argument
+        ptr->~T();
+        // assigning old head of the free list to the next node of the newly created one
+        FreeNode* newFree = new (ptr) FreeNode;
+        newFree->next = free_list_;
+        // and assigning the new object to the free list
+        free_list_ = newFree;
+    }
 
     // a free-list class
     struct FreeNode{
@@ -76,7 +96,8 @@ public:
         );
     // function that initializes the free_list_
     FreeNode* list_init(std::byte* beg){
-        FreeNode* curr = new (beg) FreeNode();
+        FreeNode* nodeBeg = new (beg) FreeNode();
+        FreeNode* curr = nodeBeg;
         // loop that intiailizes each node
         for( int i = 0; i < ChunkSize / kCacheLineAlignment; i++ ){
             // first 63 are initialized with next pointing to the adjacent node, last one is left null
@@ -86,7 +107,7 @@ public:
             } else break;
         }
         // returning the same adress as provided in the argument casting it to FreeNode*
-        return reinterpret_cast<FreeNode*>(beg);
+        return nodeBeg;
     }
     void release_all_blocks();
 };
